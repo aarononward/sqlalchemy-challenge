@@ -38,8 +38,8 @@ def home():
         f"/api/v1.0/precipitation<br/>"
         f"/api/v1.0/stations<br/>"
         f"/api/v1.0/tobs<br/>"
-        f"/api/v1.0/last-year<br/>"
-        f"/api/v1.0/first-quarter-2017"
+        f"/api/v1.0/2017<br/>"
+        f"/api/v1.0/spring_2017"
     )
 
 @app.route("/api/v1.0/precipitation")
@@ -62,12 +62,7 @@ def percipitation():
 @app.route("/api/v1.0/stations")
 def stations():
     session = Session(engine)
-    #sel = [
-    #    station.station,
-    #    station.name,
-    #    station.latitude,
-    #    station.longitude,
-    #    station.elevation]
+
     results = session.query(Station.station, Station.name,Station.latitude,
                             Station.longitude, Station.elevation).all()
 
@@ -115,10 +110,10 @@ def tobs():
 
     return jsonify(tobs_results)
 
-@app.route("/api/v1.0/last-year")
+@app.route("/api/v1.0/2017")
 def last_year():
     session = Session(engine)
-    year_ago = dt.date(2017, 8, 23) - dt.timedelta(days=365)
+    data_2017 = dt.date(2017, 1, 1)
     TMAX = func.max(Measurement.tobs)
     TMIN = func.min(Measurement.tobs)
     TAVG = func.avg(Measurement.tobs)
@@ -126,26 +121,26 @@ def last_year():
     results = session.query(TMAX,\
     TMIN,\
     TAVG).\
-    filter(Measurement.date >= year_ago).all()
+    filter(Measurement.date >= data_2017).all()
 
     session.close()
 
-    last_year =[]
+    year_2017 =[]
     for TMAX,TMIN,TAVG in results:
-        last_year_dict= {}
-        last_year_dict["2017 Max Temp"] = TMAX
-        last_year_dict["2017 Min Temp"] = TMIN
-        last_year_dict["2017 Average Temp"] = TAVG
-        last_year.append(last_year_dict)
+        dict_2017= {}
+        dict_2017["2017 Max Temp"] = TMAX
+        dict_2017["2017 Min Temp"] = TMIN
+        dict_2017["2017 Average Temp"] = TAVG
+        year_2017.append(dict_2017)
     
 
-    return jsonify(last_year)
+    return jsonify(year_2017)
 
-@app.route("/api/v1.0/first-quarter-2017")
+@app.route("/api/v1.0/spring_2017")
 def start_end():
     session = Session(engine)
-    year_ago = dt.date(2017, 8, 23) - dt.timedelta(days=365)
-    first_quarter = year_ago + dt.timedelta(days=90)
+    spring_equinox = dt.date(2017, 3, 20)
+    summer_solstice = dt.date(2017, 6, 20)
     TMAX = func.max(Measurement.tobs)
     TMIN = func.min(Measurement.tobs)
     TAVG = func.avg(Measurement.tobs)
@@ -153,8 +148,8 @@ def start_end():
     results = session.query(TMAX,\
     TMIN,\
     TAVG).\
-    filter(Measurement.date >= year_ago).\
-    filter(Measurement.date <= first_quarter)    
+    filter(Measurement.date >= spring_equinox).\
+    filter(Measurement.date <= summer_solstice)    
     session.close()
 
     spring_2017 =[]
